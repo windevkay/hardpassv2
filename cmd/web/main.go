@@ -5,8 +5,14 @@ import (
 	"net/http"
 )
 
+
 func main() {
 	mux := http.NewServeMux()
+
+	fileServer := http.FileServer(http.Dir("./fileserver/"))
+	
+	mux.Handle("/fileserver/", http.StripPrefix("/fileserver", fileServer))
+
 	mux.HandleFunc("/", home)
 	mux.HandleFunc("/password/create", passwordCreate)
 	mux.HandleFunc("/password/view", passwordView)

@@ -1,6 +1,6 @@
 ### **Hp** 🛠️
 
-Hardpass is a Go Web application that caters to both individual and enterprise users. It can be used for:
+Hardpass is a Go Web application 🚀 that caters to both individual and enterprise users. It can be used for:
 
 - Password Management
 - Secure file sharing amongst app users

@@ -3,12 +3,11 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
@@ -20,39 +19,36 @@ func home(w http.ResponseWriter, r *http.Request) {
 		"./ui/html/partials/nav.tmpl.html",
 		"./ui/html/pages/home.tmpl.html",
 	}
-	
+
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Print(err.Error())
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		app.serverError(w, err)
 		return
 	}
 	// execute the template
 	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-		log.Print(err.Error())
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		app.serverError(w, err)
 	}
 }
 
-func passwordCreate(w http.ResponseWriter, r *http.Request) {
+func (app *application) passwordCreate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		// set necessary header fields
 		w.Header().Set("Allow", http.MethodPost)
-		// write to header and body
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
 
 	w.Write([]byte("passwordCreate"))
 }
 
-func passwordView(w http.ResponseWriter, r *http.Request) {
+func (app *application) passwordView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
-	// write some dynamic data to the response
+	// write some dynamic data to the response stream
 	fmt.Fprintf(w, "Display a specific password with ID %d...", id)
 }

@@ -1,10 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"log"
 	"net/http"
 	"os"
+	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type application struct {
@@ -13,13 +18,25 @@ type application struct {
 }
 
 func main() {
+	// defaults from env
+	defaultPort := os.Getenv("PORT")
+	defaultDSN := os.Getenv("DSN")
+
 	// command line flags
-	addr := flag.String("addr", ":4000", "HTTP network address")
+	addr := flag.String("addr", defaultPort, "HTTP network address")
+	dsn := flag.String("dsn", defaultDSN, "MySQL data source name")
 	flag.Parse()
 
 	// levelled logs - concurrency safe
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	// database connection pool
+	db, err := getDBConnectionPool(*dsn)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	defer db.Close()
 
 	// initialize application struct
 	app := &application{
@@ -35,6 +52,23 @@ func main() {
 	}
 
 	infoLog.Printf("Hardpass is starting on port %s 🚀", *addr)
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
+}
+
+func getDBConnectionPool (dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+	// set max open connections
+	db.SetMaxOpenConns(25)
+	// set max idle connections
+	db.SetMaxIdleConns(25)
+	// set max connection lifetime
+	db.SetConnMaxLifetime(5 * time.Minute)
+	return db, nil
 }

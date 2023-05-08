@@ -8,13 +8,16 @@ import (
 	"os"
 	"time"
 
+	"github.com/windevkay/hardpassv2/internal/entities"
+
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/joho/godotenv/autoload"
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
+	errorLog  *log.Logger
+	infoLog   *log.Logger
+	passwords *entities.PasswordEntity
 }
 
 func main() {
@@ -40,8 +43,9 @@ func main() {
 
 	// initialize application struct
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
+		errorLog:  errorLog,
+		infoLog:   infoLog,
+		passwords: &entities.PasswordEntity{DB: db},
 	}
 
 	// override some server defaults
@@ -56,7 +60,7 @@ func main() {
 	errorLog.Fatal(err)
 }
 
-func getDBConnectionPool (dsn string) (*sql.DB, error) {
+func getDBConnectionPool(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err

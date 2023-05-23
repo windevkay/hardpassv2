@@ -2,6 +2,7 @@ package entities
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -44,9 +45,41 @@ func (p *PasswordEntity) Get(id int) (*Password, error) {
 	password := &Password{}
 	err := row.Scan(&password.ID, &password.App, &password.Password, &password.Created_At, &password.Updated_At)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		} else {
+			return nil, err
+		}
 	}
 	// todo: decrypt hashed password
 	//	- https://pkg.go.dev/golang.org/x/crypto/bcrypt#CompareHashAndPassword
 	return password, nil
+}
+
+func (p *PasswordEntity) AllPasswords() ([]*Password, error) {
+	stmt := `SELECT id, app, password, created_at, updated_at 
+	FROM passwords
+	WHERE deleted_at IS NULL`
+
+	rows, err := p.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	passwords := []*Password{}
+	for rows.Next() {
+		password := &Password{}
+		err := rows.Scan(&password.ID, &password.App, &password.Password, &password.Created_At, &password.Updated_At)
+		if err != nil {
+			return nil, err
+		}
+		passwords = append(passwords, password)
+	}
+	
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return passwords, nil
 }

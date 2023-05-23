@@ -7,7 +7,8 @@ func (app *application) routes() *http.ServeMux {
 
 	mux.HandleFunc("/", app.home)
 	mux.HandleFunc("/password/create", app.passwordCreate)
-	mux.HandleFunc("/password/view", app.passwordView)
+	mux.HandleFunc("/password/viewAll", app.passwordViewAll)
+	mux.HandleFunc("/password/viewOne", app.passwordViewOne)
 
 	return mux
 }

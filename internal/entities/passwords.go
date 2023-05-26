@@ -2,8 +2,8 @@ package entities
 
 import (
 	"database/sql"
+	"encoding/hex"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
@@ -30,8 +30,6 @@ func (p *PasswordEntity) Insert(appIdentifier string) (int, error) {
 	}
 	text := password.Text
 	key := password.Key
-
-	fmt.Print(text)
 
 	stmt := `INSERT INTO passwords (app, password, ekey) VALUES (?, ?, ?)`
 	p.Lock()
@@ -73,7 +71,16 @@ func (p *PasswordEntity) Get(id int) (*Password, error) {
 		return nil, err
 	}
 
-	decryptedPassword, err := secure.Decrypt([]byte(password.Password), []byte(ekey))
+	decodedPassword, err := hex.DecodeString(password.Password)
+	if err != nil {
+		return nil, err
+	}
+	decodedKey, err := hex.DecodeString(ekey)
+	if err != nil {
+		return nil, err
+	}
+
+	decryptedPassword, err := secure.Decrypt(decodedPassword, decodedKey)
 	if err != nil {
 		return nil, err
 	}

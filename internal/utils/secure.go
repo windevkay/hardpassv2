@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/hex"
 )
 
 type Password struct {
@@ -31,16 +32,16 @@ func Encrypt(key []byte, text []byte) (string, error) {
 		return "", err
 	}
 
-	cipherText := make([]byte, aes.BlockSize+len(text))
-	iv := cipherText[:aes.BlockSize]
+	cipherSlice := make([]byte, aes.BlockSize+len(text))
+	iv := cipherSlice[:aes.BlockSize]
 	if _, err := rand.Read(iv); err != nil {
 		return "", err
 	}
 
 	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(cipherText[aes.BlockSize:], text)
+	stream.XORKeyStream(cipherSlice[aes.BlockSize:], text)
 
-	return string(cipherText), nil
+	return hex.EncodeToString(cipherSlice), nil
 }
 
 func Decrypt(key []byte, text []byte) ([]byte, error) {
@@ -93,5 +94,5 @@ func GenPassword () (*Password, error) {
 		return &Password{}, err
 	}
 
-	return &Password{Text: cipherText, Key: string(key)}, nil
+	return &Password{Text: cipherText, Key: hex.EncodeToString(key)}, nil
 }

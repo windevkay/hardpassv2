@@ -44,12 +44,12 @@ func (app *application) passwordCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	test_app := "test_app"
-	_, err := app.passwords.Insert(test_app)
+	id, err := app.passwords.Insert(test_app)
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
-	http.Redirect(w, r, "/password/viewAll", http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/password/viewOne?id=%d", id), http.StatusSeeOther)
 }
 
 func (app *application) passwordViewOne(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +68,25 @@ func (app *application) passwordViewOne(w http.ResponseWriter, r *http.Request) 
 		}
 		return
 	}
-	fmt.Fprintf(w, "%+v", password)
+	
+	files := []string{
+		"./ui/html/base.tmpl.html",
+		"./ui/html/partials/nav.tmpl.html",
+		"./ui/html/pages/password.tmpl.html",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	data := &templateData{Password: password}
+
+	err = ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.serverError(w, err)
+	}
 }
 
 func (app *application) passwordViewAll(w http.ResponseWriter, r *http.Request) {

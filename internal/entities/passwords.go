@@ -14,6 +14,7 @@ type Password struct {
 	ID         int
 	App        string
 	Password   string
+	Ekey       string
 	Created_At time.Time
 	Updated_At time.Time
 }
@@ -30,6 +31,13 @@ func (p *PasswordEntity) Insert(appIdentifier string) (int, error) {
 	}
 	text := password.Text
 	key := password.Key
+	// begin transaction
+	tx, err := p.DB.Begin()
+	if err != nil {
+		return 0, err
+	}
+
+	defer tx.Rollback()
 
 	stmt := `INSERT INTO passwords (app, password, ekey) VALUES (?, ?, ?)`
 	p.Lock()
@@ -49,15 +57,22 @@ func (p *PasswordEntity) Insert(appIdentifier string) (int, error) {
 }
 
 func (p *PasswordEntity) Get(id int) (*Password, error) {
+	// begin transaction
+	tx, err := p.DB.Begin()
+	if err != nil {
+		return &Password{}, err
+	}
+
+	defer tx.Rollback()
+
 	stmt := `SELECT id, app, password, ekey, created_at, updated_at FROM passwords WHERE id = ?`
 	p.RLock()
 	row := p.DB.QueryRow(stmt, id)
 	p.RUnlock()
 
 	password := &Password{}
-	var ekey string
 
-	err := row.Scan(&password.ID, &password.App, &password.Password, &password.Created_At, &password.Updated_At)
+	err = row.Scan(&password.ID, &password.App, &password.Password, &password.Ekey, &password.Created_At, &password.Updated_At)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord
@@ -66,33 +81,35 @@ func (p *PasswordEntity) Get(id int) (*Password, error) {
 		}
 	}
 
-	err = row.Scan(&ekey)
-	if err != nil {
-		return nil, err
-	}
-
 	decodedPassword, err := hex.DecodeString(password.Password)
 	if err != nil {
 		return nil, err
 	}
-	decodedKey, err := hex.DecodeString(ekey)
+	decodedKey, err := hex.DecodeString(password.Ekey)
 	if err != nil {
 		return nil, err
 	}
 
-	decryptedPassword, err := secure.Decrypt(decodedPassword, decodedKey)
+	decryptedPassword, err := secure.Decrypt(decodedKey, decodedPassword)
 	if err != nil {
 		return nil, err
 	}
-	password.Password = string(decryptedPassword)
+	password.Password = hex.EncodeToString(decryptedPassword)
 
 	return password, nil
 }
 
 func (p *PasswordEntity) AllPasswords() ([]*Password, error) {
-	stmt := `SELECT id, app, password, created_at, updated_at 
+	stmt := `SELECT id, app, created_at, updated_at 
 	FROM passwords
 	WHERE deleted_at IS NULL`
+	// begin transaction
+	tx, err := p.DB.Begin()
+	if err != nil {
+		return []*Password{}, err
+	}
+
+	defer tx.Rollback()
 
 	p.RLock()
 	rows, err := p.DB.Query(stmt)
@@ -106,7 +123,7 @@ func (p *PasswordEntity) AllPasswords() ([]*Password, error) {
 	passwords := []*Password{}
 	for rows.Next() {
 		password := &Password{}
-		err := rows.Scan(&password.ID, &password.App, &password.Password, &password.Created_At, &password.Updated_At)
+		err := rows.Scan(&password.ID, &password.App, &password.Created_At, &password.Updated_At)
 		if err != nil {
 			return nil, err
 		}

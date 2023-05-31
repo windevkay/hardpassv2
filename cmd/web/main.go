@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -15,9 +16,10 @@ import (
 )
 
 type application struct {
-	errorLog  *log.Logger
-	infoLog   *log.Logger
-	passwords *entities.PasswordEntity
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	passwords     *entities.PasswordEntity
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -41,11 +43,17 @@ func main() {
 	}
 	defer db.Close()
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	// initialize application struct
 	app := &application{
-		errorLog:  errorLog,
-		infoLog:   infoLog,
-		passwords: &entities.PasswordEntity{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		passwords:     &entities.PasswordEntity{DB: db},
+		templateCache: templateCache,
 	}
 
 	// override some server defaults

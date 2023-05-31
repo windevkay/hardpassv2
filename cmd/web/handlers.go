@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -16,23 +15,15 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// composed html file paths
-	files := []string{
-		"./ui/html/base.tmpl.html",
-		"./ui/html/partials/nav.tmpl.html",
-		"./ui/html/pages/home.tmpl.html",
-	}
-
-	ts, err := template.ParseFiles(files...)
+	passwords, err := app.passwords.AllPasswords()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
-	// execute the template
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serverError(w, err)
-	}
+
+	data := &templateData{Passwords: passwords}
+
+	app.render(w, http.StatusOK, "home.tmpl.html", data)
 }
 
 func (app *application) passwordCreate(w http.ResponseWriter, r *http.Request) {
@@ -68,35 +59,8 @@ func (app *application) passwordViewOne(w http.ResponseWriter, r *http.Request) 
 		}
 		return
 	}
-	
-	files := []string{
-		"./ui/html/base.tmpl.html",
-		"./ui/html/partials/nav.tmpl.html",
-		"./ui/html/pages/password.tmpl.html",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
 
 	data := &templateData{Password: password}
 
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, err)
-	}
-}
-
-func (app *application) passwordViewAll(w http.ResponseWriter, r *http.Request) {
-	passwords, err := app.passwords.AllPasswords()
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	for _, password := range passwords {
-		fmt.Fprintf(w, "%+v\n", password)
-	}
+	app.render(w, http.StatusOK, "password.tmpl.html", data)
 }

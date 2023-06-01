@@ -1,20 +1,24 @@
 {{define "title"}}Home{{end}} {{define "main"}}
 <h2>Your Password Profiles</h2>
 {{if .Passwords}}
-<table>
-  <tr>
-    <th>App Identifier</th>
-    <th>Created</th>
-    <th>Last Cycled @</th>
-  </tr>
+<div class="list-group">
   {{range .Passwords}}
-  <tr>
-    <td><a href="/password/viewOne?id={{.ID}}">{{.App}}</a></td>
-    <td>{{.Created_At}}</td>
-    <td>#{{.Updated_At}}</td>
-  </tr>
+  <a
+    href="/password/viewOne?id={{.ID}}"
+    class="list-group-item list-group-item-action"
+  >
+    <div class="bg-success bg-opacity-10 rounded-start rounded-end p-2 mb-2">
+      <span> 🔒 </span>{{.App}}
+    </div>
+    <span class="badge text-bg-info"
+      >Created: {{formattedDate .Created_At}}</span
+    >
+    <span class="badge text-bg-warning"
+      >Last Cycled: {{formattedDate .Updated_At}}</span
+    >
+  </a>
   {{end}}
-</table>
+</div>
 {{else}}
 <p>There's nothing to see here... yet!</p>
 {{end}} {{end}}

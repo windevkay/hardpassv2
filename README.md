@@ -1,8 +1,14 @@
 ### **Hp** 🛠️
 
-Hardpass is a Go Web application 🚀 that provides features for:
+Hardpass is a Web application that provides features centered around individual password security and enterprise authentication solutions.
 
-- 🔒 Password Management
-- 📁 Secure file sharing amongst app users
+INDIVIDUALS -
 
-A companion CLI tool also allows users scan for compromised passwords, view status of shared files and easy cycle/update of stored app passwords.
+- 🔒 Secure Password Generation (AES Encryption)
+- 🔑 Offsite Encryption Key Storage
+- ⭕ Password Cycling and Monitoring
+
+ENTERPRISES -
+
+- 👾 Machine to Machine Authentication
+- 🚧 Third Party App Authentication

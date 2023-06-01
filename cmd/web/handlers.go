@@ -21,7 +21,8 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := &templateData{Passwords: passwords}
+	data := app.newTemplateData(r)
+	data.Passwords = passwords
 
 	app.render(w, http.StatusOK, "home.tmpl.html", data)
 }
@@ -60,7 +61,8 @@ func (app *application) passwordViewOne(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	data := &templateData{Password: password}
+	data := app.newTemplateData(r)
+	data.Password = password
 
 	app.render(w, http.StatusOK, "password.tmpl.html", data)
 }

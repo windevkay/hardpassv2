@@ -64,7 +64,7 @@ func TestDecryptPassword(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	
+
 	decrypted, err := DecryptPassword(client, password.KeyIdentifier, password.KeyVersion, password.Text)
 	if err != nil {
 		t.Error(err)

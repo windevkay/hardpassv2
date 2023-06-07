@@ -12,23 +12,23 @@ import (
 )
 
 type Password struct {
-	ID         int
-	App        string
-	Password   string
-	KeyIdentifier       string
-	KeyVersion string
-	Created_At time.Time
-	Updated_At time.Time
+	ID            int
+	App           string
+	Password      string
+	KeyIdentifier string
+	KeyVersion    string
+	Created_At    time.Time
+	Updated_At    time.Time
 }
 
 type PasswordEntity struct {
 	sync.RWMutex
-	DB *sql.DB
+	DB        *sql.DB
 	AzkClient *azkeys.Client
 }
 
 func (p *PasswordEntity) Insert(appIdentifier string) (int, error) {
-	password, err := azure.GenPassword(p.AzkClient, "test@email.com/" + appIdentifier, nil)
+	password, err := azure.GenPassword(p.AzkClient, "test@email.com/"+appIdentifier, nil)
 	if err != nil {
 		return 0, errors.New("error generating password")
 	}

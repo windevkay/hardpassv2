@@ -11,13 +11,13 @@ import (
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +
-"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" +
-"!@#$%^&*()_+{}[]|\\:;\"'<>,.?/~`"
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" +
+	"!@#$%^&*()_+{}[]|\\:;\"'<>,.?/~`"
 
 type Password struct {
-	Text 	string
+	Text          string
 	KeyIdentifier string // save as secret
-	KeyVersion string
+	KeyVersion    string
 }
 
 func GenPassword(client *azkeys.Client, keyIdentifier string, password any) (*Password, error) {
@@ -45,7 +45,7 @@ func GenPassword(client *azkeys.Client, keyIdentifier string, password any) (*Pa
 	// encrypt secure string
 	resp, err := client.Encrypt(context.TODO(), keyIdentifier, keyVersion, azkeys.KeyOperationsParameters{
 		Algorithm: to.Ptr(azkeys.JSONWebKeyEncryptionAlgorithmRSAOAEP256),
-		Value: []byte(text),
+		Value:     []byte(text),
 	}, nil)
 
 	if err != nil {
@@ -63,7 +63,7 @@ func DecryptPassword(client *azkeys.Client, keyIdentifier string, keyVersion str
 
 	resp, err := client.Decrypt(context.TODO(), keyIdentifier, keyVersion, azkeys.KeyOperationsParameters{
 		Algorithm: to.Ptr(azkeys.JSONWebKeyEncryptionAlgorithmRSAOAEP256),
-		Value: decodedString,
+		Value:     decodedString,
 	}, nil)
 
 	if err != nil {
@@ -76,7 +76,7 @@ func DecryptPassword(client *azkeys.Client, keyIdentifier string, keyVersion str
 // GenerateSecureKey generates a secure key using the Azure Key Vault SDK
 func generateSecureKey(client *azkeys.Client, keyIdentifier string) (*azkeys.ID, error) {
 	params := azkeys.CreateKeyParameters{
-		Kty:   to.Ptr(azkeys.JSONWebKeyTypeRSA),
+		Kty: to.Ptr(azkeys.JSONWebKeyTypeRSA),
 	}
 	// if a key with the same name already exists, a new version of that key is created
 	resp, err := client.CreateKey(context.TODO(), keyIdentifier, params, nil)

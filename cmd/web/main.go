@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/windevkay/hardpassv2/internal/azure"
 	"github.com/windevkay/hardpassv2/internal/entities"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -23,6 +24,12 @@ type application struct {
 }
 
 func main() {
+	// authenticate and connect to Azure Key Vault
+	client, err := azure.SetupClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// defaults from env
 	defaultPort := os.Getenv("PORT")
 	defaultDSN := os.Getenv("DSN")
@@ -52,7 +59,7 @@ func main() {
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
-		passwords:     &entities.PasswordEntity{DB: db},
+		passwords:     &entities.PasswordEntity{DB: db, AzkClient: client},
 		templateCache: templateCache,
 	}
 

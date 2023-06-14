@@ -2,7 +2,7 @@
 
 Hardpass is a Web application that provides features centered around individual password security and enterprise authentication solutions.
 
-INDIVIDUALS -
+INDIVIDUAL USERS -
 
 - 🔒 Secure Password Generation (RSA Encryption)
 - 🔑 Offsite Encryption Key Storage

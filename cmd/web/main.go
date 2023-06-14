@@ -24,7 +24,7 @@ type application struct {
 }
 
 func main() {
-	// authenticate and connect to Azure Key Vault
+	// authenticate and setup azure client
 	client, err := azure.SetupClient()
 	if err != nil {
 		log.Fatal(err)
@@ -59,7 +59,7 @@ func main() {
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
-		passwords:     &entities.PasswordEntity{DB: db, AzkClient: client},
+		passwords:     &entities.PasswordEntity{DB: db, AzureClient: client},
 		templateCache: templateCache,
 	}
 

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
+	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
 	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azkeys"
 )
 
@@ -16,13 +17,12 @@ const charset = "abcdefghijklmnopqrstuvwxyz" +
 
 type Password struct {
 	Text          string
-	KeyIdentifier string // save as secret
-	KeyVersion    string
+	KeyIdentifier string
 }
 
-func GenPassword(client *azkeys.Client, keyIdentifier string, password any) (*Password, error) {
+func GenPassword(client *AzureClient, keyIdentifier string, password any) (*Password, error) {
 	// generate secure key
-	keystring, err := generateSecureKey(client, keyIdentifier)
+	keystring, err := generateSecureKey(client.Keys, keyIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func GenPassword(client *azkeys.Client, keyIdentifier string, password any) (*Pa
 	}
 
 	// encrypt secure string
-	resp, err := client.Encrypt(context.TODO(), keyIdentifier, keyVersion, azkeys.KeyOperationsParameters{
+	resp, err := client.Keys.Encrypt(context.TODO(), keyIdentifier, keyVersion, azkeys.KeyOperationsParameters{
 		Algorithm: to.Ptr(azkeys.JSONWebKeyEncryptionAlgorithmRSAOAEP256),
 		Value:     []byte(text),
 	}, nil)
@@ -52,16 +52,30 @@ func GenPassword(client *azkeys.Client, keyIdentifier string, password any) (*Pa
 		return nil, err
 	}
 
-	return &Password{Text: hex.EncodeToString(resp.Result), KeyIdentifier: keyIdentifier, KeyVersion: keyVersion}, nil
+	// save key version as secret
+	_, err = client.Secrets.SetSecret(context.TODO(), keyIdentifier, azsecrets.SetSecretParameters{
+		Value: &keyVersion,
+	}, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Password{Text: hex.EncodeToString(resp.Result), KeyIdentifier: keyIdentifier}, nil
 }
 
-func DecryptPassword(client *azkeys.Client, keyIdentifier string, keyVersion string, text string) (string, error) {
+func DecryptPassword(client *AzureClient, keyIdentifier string, text string) (string, error) {
 	decodedString, err := hex.DecodeString(text)
 	if err != nil {
 		return "", err
 	}
+	// get key version from secret
+	version, err := client.Secrets.GetSecret(context.TODO(), keyIdentifier, "", nil)
+	if err != nil {
+		return "", err
+	}
 
-	resp, err := client.Decrypt(context.TODO(), keyIdentifier, keyVersion, azkeys.KeyOperationsParameters{
+	resp, err := client.Keys.Decrypt(context.TODO(), keyIdentifier, *version.Value, azkeys.KeyOperationsParameters{
 		Algorithm: to.Ptr(azkeys.JSONWebKeyEncryptionAlgorithmRSAOAEP256),
 		Value:     decodedString,
 	}, nil)

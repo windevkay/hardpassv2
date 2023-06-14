@@ -4,9 +4,10 @@ Hardpass is a Web application that provides features centered around individual 
 
 INDIVIDUALS -
 
-- 🔒 Secure Password Generation (AES Encryption)
+- 🔒 Secure Password Generation (RSA Encryption)
 - 🔑 Offsite Encryption Key Storage
-- ⭕ Password Cycling and Monitoring
+- 🗝️ Offsite Key Version Storage
+- ⭕ Key Version Cycling and Monitoring
 
 ENTERPRISES -
 

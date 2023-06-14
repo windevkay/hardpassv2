@@ -20,7 +20,7 @@ type Password struct {
 
 type PasswordEntity struct {
 	sync.RWMutex
-	DB        *sql.DB
+	DB          *sql.DB
 	AzureClient *azure.AzureClient
 }
 

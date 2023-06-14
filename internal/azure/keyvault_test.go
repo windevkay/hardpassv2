@@ -6,7 +6,7 @@ import (
 
 func TestGenSecureString(t *testing.T) {
 	res, err := genSecureString()
-	
+
 	if err != nil {
 		t.Error("genSecureString() failed")
 	}

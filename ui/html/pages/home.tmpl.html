@@ -1,24 +1,46 @@
 {{define "title"}}Home{{end}} {{define "main"}}
-<h2>Your Password Profiles</h2>
-{{if .Passwords}}
-<div class="list-group">
-  {{range .Passwords}}
-  <a
-    href="/password/viewOne?id={{.ID}}"
-    class="list-group-item list-group-item-action"
-  >
-    <div class="bg-success bg-opacity-10 rounded-start rounded-end p-2 mb-2">
-      <span> 🔒 </span>{{.App}}
+<div class="row">
+  <div class="col">
+    <h2>Create a new Password</h2>
+    <form>
+      <div class="input-group mb-3">
+        <span class="input-group-text">App Identifier</span>
+        <input
+          type="text"
+          class="form-control"
+          aria-describedby="emailHelp"
+          name="app"
+        />
+      </div>
+      <button type="submit" class="btn btn-outline-primary">Submit</button>
+    </form>
+  </div>
+
+  <div class="col">
+    <h2>Your Password Profiles</h2>
+    {{if .Passwords}}
+    <div class="list-group">
+      {{range .Passwords}}
+      <a
+        href="/password/view/{{.ID}}"
+        class="list-group-item list-group-item-action"
+      >
+        <div
+          class="bg-success bg-opacity-10 rounded-start rounded-end p-2 mb-2"
+        >
+          <span> 🔒 </span>{{.App}}
+        </div>
+        <span class="badge text-bg-info"
+          >Created: {{formattedDate .Created_At}}</span
+        >
+        <span class="badge text-bg-warning"
+          >Last Cycled: {{formattedDate .Updated_At}}</span
+        >
+      </a>
+      {{end}}
     </div>
-    <span class="badge text-bg-info"
-      >Created: {{formattedDate .Created_At}}</span
-    >
-    <span class="badge text-bg-warning"
-      >Last Cycled: {{formattedDate .Updated_At}}</span
-    >
-  </a>
-  {{end}}
+    {{else}}
+    <p>There's nothing to see here... yet!</p>
+    {{end}} {{end}}
+  </div>
 </div>
-{{else}}
-<p>There's nothing to see here... yet!</p>
-{{end}} {{end}}

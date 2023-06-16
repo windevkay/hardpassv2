@@ -25,7 +25,7 @@ type PasswordEntity struct {
 }
 
 func (p *PasswordEntity) Insert(appIdentifier string) (int, error) {
-	password, err := azure.GenPassword(p.AzureClient, "test@email.com/"+appIdentifier, nil)
+	password, err := azure.GenPassword(p.AzureClient, appIdentifier, nil)
 	if err != nil {
 		return 0, errors.New("error generating password")
 	}

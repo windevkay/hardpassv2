@@ -7,14 +7,11 @@ import (
 	"strconv"
 
 	"github.com/windevkay/hardpassv2/internal/entities"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-
 	passwords, err := app.passwords.AllPasswords()
 	if err != nil {
 		app.serverError(w, err)
@@ -27,25 +24,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	app.render(w, http.StatusOK, "home.tmpl.html", data)
 }
 
-func (app *application) passwordCreate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		// set necessary header fields
-		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
-
-	test_app := "test_app"
-	id, err := app.passwords.Insert(test_app)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-	http.Redirect(w, r, fmt.Sprintf("/password/viewOne?id=%d", id), http.StatusSeeOther)
-}
-
-func (app *application) passwordViewOne(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+func (app *application) passwordView(w http.ResponseWriter, r *http.Request) {
+	params := httprouter.ParamsFromContext(r.Context())
+	
+	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -66,3 +48,16 @@ func (app *application) passwordViewOne(w http.ResponseWriter, r *http.Request) 
 
 	app.render(w, http.StatusOK, "password.tmpl.html", data)
 }
+
+func (app *application) passwordCreatePost(w http.ResponseWriter, r *http.Request) {
+	test_app := "test-app"
+
+	id, err := app.passwords.Insert(test_app)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	http.Redirect(w, r, fmt.Sprintf("/password/view/%d", id), http.StatusSeeOther)
+}
+
+

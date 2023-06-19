@@ -2,22 +2,26 @@
 <div class="row">
   <div class="col">
     <h2>Create a new Password</h2>
-    <form>
+    {{with .Form.FieldErrors.app}}
+    <div class="alert alert-danger" role="alert">{{.}}</div>
+    {{end}}
+    <form action="/password/create" method="post">
       <div class="input-group mb-3">
-        <span class="input-group-text">App Identifier</span>
+        <span class="input-group-text">📦 App Identifier</span>
         <input
           type="text"
           class="form-control"
-          aria-describedby="emailHelp"
+          aria-describedby="appName"
           name="app"
+          value="{{.Form.App}}"
         />
       </div>
-      <button type="submit" class="btn btn-outline-primary">Submit</button>
+      <button type="submit" class="btn btn-outline-primary">save</button>
     </form>
   </div>
 
   <div class="col">
-    <h2>Your Password Profiles</h2>
+    <h2>🔒 Your Password Profiles</h2>
     {{if .Passwords}}
     <div class="list-group">
       {{range .Passwords}}
@@ -28,7 +32,7 @@
         <div
           class="bg-success bg-opacity-10 rounded-start rounded-end p-2 mb-2"
         >
-          <span> 🔒 </span>{{.App}}
+          {{.App}}
         </div>
         <span class="badge text-bg-info"
           >Created: {{formattedDate .Created_At}}</span
@@ -41,6 +45,7 @@
     </div>
     {{else}}
     <p>There's nothing to see here... yet!</p>
-    {{end}} {{end}}
+    {{end}}
   </div>
 </div>
+{{end}}

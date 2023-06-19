@@ -7,9 +7,15 @@ import (
 	"strconv"
 
 	"github.com/windevkay/hardpassv2/internal/entities"
+	"github.com/windevkay/hardpassv2/internal/validator"
 
 	"github.com/julienschmidt/httprouter"
 )
+
+type passwordCreateForm struct {
+	App string `form:"app"`
+	validator.Validator `form:"-"`
+}
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	passwords, err := app.passwords.AllPasswords()
@@ -20,6 +26,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	data := app.newTemplateData(r)
 	data.Passwords = passwords
+	data.Form = passwordCreateForm{}
 
 	app.render(w, http.StatusOK, "home.tmpl.html", data)
 }
@@ -50,9 +57,25 @@ func (app *application) passwordView(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) passwordCreatePost(w http.ResponseWriter, r *http.Request) {
-	test_app := "test-app"
+	var form passwordCreateForm
 
-	id, err := app.passwords.Insert(test_app)
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form.CheckField(validator.NotBlank(form.App), "app", "App name cannot be blank")
+	form.CheckField(validator.MaxChars(form.App, 50), "app", "App name cannot be longer than 50 characters")
+
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, http.StatusUnprocessableEntity, "home.tmpl.html", data)
+		return
+	}
+
+	id, err := app.passwords.Insert(form.App)
 	if err != nil {
 		app.serverError(w, err)
 		return

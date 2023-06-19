@@ -12,6 +12,8 @@ import (
 	"github.com/windevkay/hardpassv2/internal/azure"
 	"github.com/windevkay/hardpassv2/internal/entities"
 
+	"github.com/go-playground/form/v4"
+
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -21,6 +23,7 @@ type application struct {
 	infoLog       *log.Logger
 	passwords     *entities.PasswordEntity
 	templateCache map[string]*template.Template
+	formDecoder  *form.Decoder
 }
 
 func main() {
@@ -55,12 +58,15 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	formDecoder := form.NewDecoder()
+
 	// initialize application struct
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		passwords:     &entities.PasswordEntity{DB: db, AzureClient: client},
 		templateCache: templateCache,
+		formDecoder:   formDecoder,
 	}
 
 	// override some server defaults

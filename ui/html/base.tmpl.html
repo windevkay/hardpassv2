@@ -23,7 +23,12 @@
     <![endif]-->
     {{template "nav" .}}
     <div class="container">
-        <main>{{template "main" .}}</main>
+        <main>
+          {{with .Flash}}
+            <div class="alert alert-success" role="alert">{{.}}</div>
+          {{end}}
+          {{template "main" .}}
+        </main>
         <footer>
           <div class="mx-auto p-2">
             Made with ☕ in Calgary 🍁 | {{.CurrentYear}}

@@ -13,6 +13,7 @@ type templateData struct {
 	Password    *entities.Password
 	Passwords   []*entities.Password
 	Form 		any
+	Flash 		string
 }
 
 func formattedDate(t time.Time) string {

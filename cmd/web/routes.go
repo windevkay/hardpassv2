@@ -13,10 +13,12 @@ func (app *application) routes() http.Handler {
 	router.NotFound = http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 	})
+	// session middleware
+	withSession := alice.New(app.sessionManager.LoadAndSave)
 
-	router.HandlerFunc(http.MethodGet, "/", app.home)
-	router.HandlerFunc(http.MethodGet, "/password/view/:id", app.passwordView)
-	router.HandlerFunc(http.MethodPost, "/password/create", app.passwordCreatePost)
+	router.Handler(http.MethodGet, "/", withSession.ThenFunc(app.home))
+	router.Handler(http.MethodGet, "/password/view/:id", withSession.ThenFunc(app.passwordView))
+	router.Handler(http.MethodPost, "/password/create", withSession.ThenFunc(app.passwordCreatePost))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 

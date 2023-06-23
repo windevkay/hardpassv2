@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"html/template"
@@ -12,6 +13,8 @@ import (
 	"github.com/windevkay/hardpassv2/internal/azure"
 	"github.com/windevkay/hardpassv2/internal/entities"
 
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -24,6 +27,7 @@ type application struct {
 	passwords     *entities.PasswordEntity
 	templateCache map[string]*template.Template
 	formDecoder  *form.Decoder
+	sessionManager *scs.SessionManager
 }
 
 func main() {
@@ -60,6 +64,12 @@ func main() {
 
 	formDecoder := form.NewDecoder()
 
+	// session manager
+	sessionManager := scs.New()
+	sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Lifetime = 24 * time.Hour
+	sessionManager.Cookie.Secure = true // only send cookies over HTTPS
+
 	// initialize application struct
 	app := &application{
 		errorLog:      errorLog,
@@ -67,6 +77,12 @@ func main() {
 		passwords:     &entities.PasswordEntity{DB: db, AzureClient: client},
 		templateCache: templateCache,
 		formDecoder:   formDecoder,
+		sessionManager: sessionManager,
+	}
+
+	// custom tls config - limit elliptic curves in tls handshake
+	tlsConfig := &tls.Config{
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
 	}
 
 	// override some server defaults
@@ -74,10 +90,14 @@ func main() {
 		Addr:     *addr,
 		ErrorLog: errorLog,
 		Handler:  app.routes(),
+		TLSConfig: tlsConfig,
+		IdleTimeout: time.Minute, // close connections after 1 minute of inactivity
+		ReadTimeout: 5 * time.Second, // allow 5 seconds to read request headers
+		WriteTimeout: 10 * time.Second, // allow 10 seconds to write response
 	}
 
 	infoLog.Printf("Hardpass is starting on port %s 🚀", *addr)
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err)
 }
 

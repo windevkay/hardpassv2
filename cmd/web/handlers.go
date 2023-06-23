@@ -80,6 +80,9 @@ func (app *application) passwordCreatePost(w http.ResponseWriter, r *http.Reques
 		app.serverError(w, err)
 		return
 	}
+
+	app.sessionManager.Put(r.Context(), "flash", "Password successfully generated!")
+
 	http.Redirect(w, r, fmt.Sprintf("/password/view/%d", id), http.StatusSeeOther)
 }
 

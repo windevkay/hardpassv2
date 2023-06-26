@@ -3,7 +3,6 @@ package entities
 import (
 	"database/sql"
 	"errors"
-	"sync"
 	"time"
 
 	"github.com/windevkay/hardpassv2/internal/azure"
@@ -19,7 +18,6 @@ type Password struct {
 }
 
 type PasswordEntity struct {
-	sync.RWMutex
 	DB          *sql.DB
 	AzureClient *azure.AzureClient
 }
@@ -40,9 +38,7 @@ func (p *PasswordEntity) Insert(appIdentifier string) (int, error) {
 	defer tx.Rollback()
 
 	stmt := `INSERT INTO passwords (app, password, keyIdentifier) VALUES (?, ?, ?)`
-	p.Lock()
 	result, err := p.DB.Exec(stmt, appIdentifier, text, keyIdentifier)
-	p.Unlock()
 
 	if err != nil {
 		return 0, err
@@ -66,9 +62,7 @@ func (p *PasswordEntity) Get(id int) (*Password, error) {
 	defer tx.Rollback()
 
 	stmt := `SELECT id, app, password, keyIdentifier, created_at, updated_at FROM passwords WHERE id = ?`
-	p.RLock()
 	row := p.DB.QueryRow(stmt, id)
-	p.RUnlock()
 
 	password := &Password{}
 
@@ -102,9 +96,7 @@ func (p *PasswordEntity) AllPasswords() ([]*Password, error) {
 
 	defer tx.Rollback()
 
-	p.RLock()
 	rows, err := p.DB.Query(stmt)
-	p.RUnlock()
 
 	if err != nil {
 		return nil, err

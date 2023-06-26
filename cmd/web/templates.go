@@ -12,8 +12,8 @@ type templateData struct {
 	CurrentYear int
 	Password    *entities.Password
 	Passwords   []*entities.Password
-	Form 		any
-	Flash 		string
+	Form        any
+	Flash       string
 }
 
 func formattedDate(t time.Time) string {

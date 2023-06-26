@@ -1,0 +1,41 @@
+{{define "title"}}Signup{{end}} {{define "main"}}
+<div class="row align-items-center" style="height: 70vh">
+  <div class="mx-auto col-10 col-md-8 col-lg-6">
+    <div><h2 class="my-4">Create your Hardpass User Account</h2></div>
+    <form action="/user/signup" method="POST" novalidate>
+      <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        {{with .Form.FieldErrors.name}}
+        <label class="alert alert-danger" role="alert">{{.}}</label> {{end}}
+        <input
+          type="text"
+          class="form-control"
+          name="name"
+          value="{{.Form.Name}}"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        {{with .Form.FieldErrors.email}}
+        <label class="alert alert-danger" role="alert">{{.}}</label> {{end}}
+        <input
+          type="email"
+          class="form-control"
+          name="email"
+          value="{{.Form.Email}}"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        {{with .Form.FieldErrors.password}}
+        <label class="alert alert-danger" role="alert">{{.}}</label> {{end}}
+        <input type="password" class="form-control" name="password" />
+      </div>
+
+      <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+  </div>
+</div>
+{{end}}

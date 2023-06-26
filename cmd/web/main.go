@@ -22,11 +22,12 @@ import (
 )
 
 type application struct {
-	errorLog      *log.Logger
-	infoLog       *log.Logger
-	passwords     *entities.PasswordEntity
-	templateCache map[string]*template.Template
-	formDecoder  *form.Decoder
+	errorLog       *log.Logger
+	infoLog        *log.Logger
+	passwords      *entities.PasswordEntity
+	users          *entities.UserEntity
+	templateCache  map[string]*template.Template
+	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
 }
 
@@ -72,11 +73,12 @@ func main() {
 
 	// initialize application struct
 	app := &application{
-		errorLog:      errorLog,
-		infoLog:       infoLog,
-		passwords:     &entities.PasswordEntity{DB: db, AzureClient: client},
-		templateCache: templateCache,
-		formDecoder:   formDecoder,
+		errorLog:       errorLog,
+		infoLog:        infoLog,
+		passwords:      &entities.PasswordEntity{DB: db, AzureClient: client},
+		users:          &entities.UserEntity{DB: db},
+		templateCache:  templateCache,
+		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 	}
 
@@ -87,12 +89,12 @@ func main() {
 
 	// override some server defaults
 	srv := &http.Server{
-		Addr:     *addr,
-		ErrorLog: errorLog,
-		Handler:  app.routes(),
-		TLSConfig: tlsConfig,
-		IdleTimeout: time.Minute, // close connections after 1 minute of inactivity
-		ReadTimeout: 5 * time.Second, // allow 5 seconds to read request headers
+		Addr:         *addr,
+		ErrorLog:     errorLog,
+		Handler:      app.routes(),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,      // close connections after 1 minute of inactivity
+		ReadTimeout:  5 * time.Second,  // allow 5 seconds to read request headers
 		WriteTimeout: 10 * time.Second, // allow 10 seconds to write response
 	}
 

@@ -15,15 +15,19 @@ func (app *application) routes() http.Handler {
 	})
 	// session middleware
 	withSession := alice.New(app.sessionManager.LoadAndSave)
-
-	router.Handler(http.MethodGet, "/", withSession.ThenFunc(app.home))
-	router.Handler(http.MethodGet, "/password/view/:id", withSession.ThenFunc(app.passwordView))
-	router.Handler(http.MethodPost, "/password/create", withSession.ThenFunc(app.passwordCreatePost))
+	// public routes
 	router.Handler(http.MethodGet, "/user/signup", withSession.ThenFunc(app.userSignup))
 	router.Handler(http.MethodPost, "/user/signup", withSession.ThenFunc(app.userSignupPost))
 	router.Handler(http.MethodGet, "/user/login", withSession.ThenFunc(app.userLogin))
 	router.Handler(http.MethodPost, "/user/login", withSession.ThenFunc(app.userLoginPost))
-	router.Handler(http.MethodPost, "/user/logout", withSession.ThenFunc(app.userLogoutPost))
+
+	// auth guard middleware
+	withAuth := withSession.Append(app.requireAuthentication)
+	// private routes
+	router.Handler(http.MethodPost, "/password/create", withAuth.ThenFunc(app.passwordCreatePost))
+	router.Handler(http.MethodPost, "/user/logout", withAuth.ThenFunc(app.userLogoutPost))
+	router.Handler(http.MethodGet, "/", withAuth.ThenFunc(app.home))
+	router.Handler(http.MethodGet, "/password/view/:id", withAuth.ThenFunc(app.passwordView))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 

@@ -1,0 +1,66 @@
+{{define "title"}}Login{{end}} {{define "main"}}
+<div class="row align-items-center" style="height: 70vh">
+  <div class="mx-auto col-10 col-md-8 col-lg-6">
+    <div>
+      <h2 class="my-4">
+        Login to your <span class="badge text-bg-warning">HardPass</span> User
+        Account
+      </h2>
+    </div>
+
+    <div>
+      <p>
+        HardPass provides features centered around
+        <b
+          >individual password security and enterprise authentication
+          solutions</b
+        >. If you are an enterprise user, login via
+        <a
+          href="#"
+          class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+          >HardPass for Enterprise</a
+        >
+      </p>
+    </div>
+
+    <form action="/user/login" method="POST" novalidate>
+      {{range .Form.NonFieldErrors}}
+      <label class="alert alert-danger" role="alert"> {{.}} </label>
+      {{end}}
+      <div class="mb-3">
+        <label for="email" class="form-label">Email:</label>
+        {{with .Form.FieldErrors.email}}
+        <div class="alert alert-danger" role="alert">{{.}}</div>
+        {{end}}
+        <input
+          type="email"
+          class="form-control"
+          name="email"
+          value="{{.Form.Email}}"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password:</label>
+        {{with .Form.FieldErrors.password}}
+        <div class="alert alert-danger" role="alert">{{.}}</div>
+        {{end}}
+        <input type="password" class="form-control" name="password" />
+      </div>
+
+      <div>
+        <button type="submit" class="btn btn-success">Login</button>
+      </div>
+    </form>
+    <p>
+      Dont have an account?
+      <a
+        href="/user/signup"
+        class="link-info link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+        >Signup</a
+      >
+      😌
+    </p>
+  </div>
+</div>
+{{end}}

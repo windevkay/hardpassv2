@@ -9,11 +9,12 @@ import (
 )
 
 type templateData struct {
-	CurrentYear int
-	Password    *entities.Password
-	Passwords   []*entities.Password
-	Form        any
-	Flash       string
+	CurrentYear     int
+	Password        *entities.Password
+	Passwords       []*entities.Password
+	Form            any
+	Flash           string
+	IsAuthenticated bool
 }
 
 func formattedDate(t time.Time) string {

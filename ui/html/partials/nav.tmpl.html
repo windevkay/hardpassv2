@@ -1,7 +1,7 @@
 {{define "nav"}}
 <nav class="navbar sticky-top navbar-expand-lg bg-body-tertiary">
   <div class="container container-fluid">
-    <a class="navbar-brand mb-0 h1" href="/">Hp 🛠️ </a>
+    <a class="navbar-brand mb-0 h1" href="#">Hp 🛠️ </a>
     <button
       class="navbar-toggler"
       type="button"
@@ -14,34 +14,33 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      {{if .IsAuthenticated}}
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-5">
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="/">Home</a>
         </li>
       </ul>
+
+      <form class="d-flex" role="search">
+        <input
+          class="form-control me-2"
+          type="search"
+          placeholder="search"
+          aria-label="Search"
+        />
+        <button class="btn btn-success" type="submit">Search</button>
+      </form>
+
+      <form
+        class="d-flex mx-1"
+        role="logout"
+        method="post"
+        action="/user/logout"
+      >
+        <button class="btn btn-info" type="submit">Logout</button>
+      </form>
+      {{end}}
     </div>
-
-    <form class="d-flex" role="search">
-      <input
-        class="form-control me-2"
-        type="search"
-        placeholder="search"
-        aria-label="Search"
-      />
-      <button class="btn btn-success" type="submit">Search</button>
-    </form>
-
-    <form class="d-flex mx-1" role="logout" method="post" action="/user/logout">
-      <button class="btn btn-info" type="submit">Logout</button>
-    </form>
-
-    <form class="d-flex mx-1" role="signup" method="get" action="/user/signup">
-      <button class="btn btn-outline-success" type="submit">Signup</button>
-    </form>
-
-    <form class="d-flex mx-1" role="login" method="get" action="/user/login">
-      <button class="btn btn-outline-info" type="submit">Login</button>
-    </form>
   </div>
 </nav>
 {{end}}

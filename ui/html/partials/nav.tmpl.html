@@ -37,6 +37,7 @@
         method="post"
         action="/user/logout"
       >
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
         <button class="btn btn-info" type="submit">Logout</button>
       </form>
       {{end}}

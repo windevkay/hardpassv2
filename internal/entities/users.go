@@ -82,5 +82,10 @@ func (u *UserEntity) Authenticate(email, password string) (int, error) {
 }
 
 func (u *UserEntity) Exists(id int) (bool, error) {
-	return false, nil
+	var exists bool
+
+	stmt := `SELECT EXISTS(SELECT true FROM users WHERE id = ?)`
+
+	err := u.DB.QueryRow(stmt, id).Scan(&exists)
+	return exists, err
 }

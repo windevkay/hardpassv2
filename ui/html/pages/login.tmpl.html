@@ -28,6 +28,7 @@
     </div>
 
     <form action="/user/login" method="POST" novalidate>
+      <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
       {{range .Form.NonFieldErrors}}
       <label class="alert alert-danger" role="alert"> {{.}} </label>
       {{end}}

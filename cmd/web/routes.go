@@ -14,7 +14,7 @@ func (app *application) routes() http.Handler {
 		app.notFound(w)
 	})
 	// session middleware
-	withSession := alice.New(app.sessionManager.LoadAndSave, noSurf)
+	withSession := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 	// public routes
 	router.Handler(http.MethodGet, "/user/signup", withSession.ThenFunc(app.userSignup))
 	router.Handler(http.MethodPost, "/user/signup", withSession.ThenFunc(app.userSignupPost))

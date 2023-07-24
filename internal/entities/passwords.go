@@ -8,6 +8,12 @@ import (
 	"github.com/windevkay/hardpassv2/internal/azure"
 )
 
+type PasswordEntityInterface interface {
+	Insert(appIdentifier string) (int, error)
+	Get(id int) (*Password, error)
+	AllPasswords() ([]*Password, error)
+}
+
 type Password struct {
 	ID            int
 	App           string

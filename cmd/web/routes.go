@@ -16,6 +16,7 @@ func (app *application) routes() http.Handler {
 	// session middleware
 	withSession := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 	// public routes
+	router.HandlerFunc(http.MethodGet, "/ping", ping)
 	router.Handler(http.MethodGet, "/user/signup", withSession.ThenFunc(app.userSignup))
 	router.Handler(http.MethodPost, "/user/signup", withSession.ThenFunc(app.userSignupPost))
 	router.Handler(http.MethodGet, "/user/login", withSession.ThenFunc(app.userLogin))

@@ -24,8 +24,8 @@ import (
 type application struct {
 	errorLog       *log.Logger
 	infoLog        *log.Logger
-	passwords      *entities.PasswordEntity
-	users          *entities.UserEntity
+	passwords      entities.PasswordEntityInterface
+	users          entities.UserEntityInterface
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
